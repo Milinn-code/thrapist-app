@@ -1,2 +1,2 @@
-# thrapist-app
+# therapist-app
 Application for therapists.
