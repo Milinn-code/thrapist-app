@@ -1,35 +1,41 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import LoginPage from '@/pages/auth/LoginPage'
+import RegisterPage from '@/pages/auth/RegisterPage'
+import CustomerListPage from '@/pages/customers/CustomerListPage'
+import CustomerDetailPage from '@/pages/customers/CustomerDetailPage'
+import CustomerFormPage from '@/pages/customers/CustomerFormPage'
+import VisitFormPage from '@/pages/customers/VisitFormPage'
+import CalendarPage from '@/pages/calendar/CalendarPage'
+import IncomePage from '@/pages/income/IncomePage'
+import SettingsPage from '@/pages/settings/SettingsPage'
 
-function App() {
-  const [count, setCount] = useState(0)
-
+export default function App() {
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
+    <BrowserRouter>
+      <Routes>
+        {/* デフォルトはログインへリダイレクト */}
+        <Route path="/" element={<Navigate to="/login" replace />} />
+
+        {/* 認証 */}
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
+
+        {/* 顧客管理 */}
+        <Route path="/customers" element={<CustomerListPage />} />
+        <Route path="/customers/new" element={<CustomerFormPage />} />
+        <Route path="/customers/:id" element={<CustomerDetailPage />} />
+        <Route path="/customers/:id/edit" element={<CustomerFormPage />} />
+        <Route path="/customers/:id/visits/new" element={<VisitFormPage />} />
+
+        {/* カレンダー */}
+        <Route path="/calendar" element={<CalendarPage />} />
+
+        {/* 収入・成績 */}
+        <Route path="/income" element={<IncomePage />} />
+
+        {/* 設定 */}
+        <Route path="/settings" element={<SettingsPage />} />
+      </Routes>
+    </BrowserRouter>
   )
 }
-
-export default App
