@@ -1,0 +1,41 @@
+openapi: 3.0.3
+info:
+  title: Melty API
+  version: 0.1.0
+
+servers:
+  - url: http://localhost:8000
+    description: ローカル開発環境
+
+tags:
+  - name: auth
+    description: 認証
+  - name: customers
+    description: 顧客管理
+  - name: visits
+    description: 来店管理
+  - name: income
+    description: 収入管理
+  - name: schedule
+    description: スケジュール管理
+
+paths:
+  /health:
+    get:
+      summary: ヘルスチェック
+      responses:
+        "200":
+          description: OK
+
+  # 認証エンドポイント（今後追加）
+  # /auth/signup
+  # /auth/login
+  # /auth/logout
+
+  # 顧客エンドポイント（今後追加）
+  # /customers
+  # /customers/{id}
+
+  # 来店エンドポイント（今後追加）
+  # /visits
+  # /visits/{id}
