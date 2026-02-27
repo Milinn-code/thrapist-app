@@ -37,12 +37,12 @@
 
 ---
 
-## 画面一覧（暫定）
+## 画面一覧
 
 ```
 認証
-├── ログイン画面
-└── 新規登録画面
+├── ログイン画面          ✅ 完了
+└── 新規登録画面          ✅ 完了
 
 顧客管理
 ├── 顧客一覧画面
@@ -79,13 +79,26 @@
 | 領域 | 技術 | 備考 |
 |---|---|---|
 | フロントエンド | React + TypeScript + Vite | PWA化: Vite PWA Plugin |
-| UIライブラリ | 未定（shadcn/ui + Tailwind CSS 推奨） | デザインAIへ依頼予定 |
+| UIライブラリ | Tailwind CSS v4 + shadcn/ui | New Yorkスタイル |
+| デザインツール | v0.dev | GitHubリポジトリ連携済み |
 | バックエンド | Python + FastAPI | Swagger UI自動生成あり |
 | データベース | PostgreSQL（Supabase） | |
 | 認証 | Supabase Auth | メール/パスワード → Google/LINE OAuth 追加予定 |
 | FEデプロイ | Vercel | 無料枠 |
 | BEデプロイ | Render | 無料枠 〜 $7/月 |
 | コスト目安 | ¥0〜¥5,000/月 | スケールに応じて |
+
+---
+
+## デザイン方針
+
+| 項目 | 内容 |
+|---|---|
+| テーマ | ライト系（白・ピンク・ローズ） |
+| メインカラー | ピンク（oklch 0.65 0.2 350） |
+| レイアウト | モバイルファースト・375px幅基準 |
+| コンポーネント | shadcn/ui（Card・Button・Input・Label） |
+| アイコン | lucide-react |
 
 ---
 
@@ -97,7 +110,13 @@ therapist-app/
 │   ├── public/
 │   └── src/
 │       ├── components/
+│       │   └── ui/         # shadcn/uiコンポーネント
 │       ├── pages/
+│       │   ├── auth/       # ログイン・新規登録 ✅
+│       │   ├── customers/  # 顧客管理
+│       │   ├── calendar/   # カレンダー
+│       │   ├── income/     # 収入・成績
+│       │   └── settings/   # 設定
 │       ├── hooks/
 │       └── lib/
 ├── backend/                # Python + FastAPI
@@ -119,11 +138,29 @@ therapist-app/
 
 ---
 
+## URL構成
+
+| URL | 画面 | 状態 |
+|---|---|---|
+| `/login` | ログイン | ✅ 完了 |
+| `/register` | 新規登録 | ✅ 完了 |
+| `/customers` | 顧客一覧 | 未着手 |
+| `/customers/new` | 顧客追加 | 未着手 |
+| `/customers/:id` | 顧客詳細 | 未着手 |
+| `/customers/:id/edit` | 顧客編集 | 未着手 |
+| `/customers/:id/visits/new` | 来店登録 | 未着手 |
+| `/calendar` | カレンダー | 未着手 |
+| `/income` | 収入・成績 | 未着手 |
+| `/settings` | 設定 | 未着手 |
+
+---
+
 ## Git・インフラ設定
 
 - **リポジトリ**: https://github.com/Milinn-code/therapist-app
-- **ブランチ戦略**: GitHub Flow（`main` + `feature/*`）
+- **ブランチ戦略**: GitHub Flow（`main` + `feature/*`・v0.devブランチ）
 - **認証方式**: Personal Access Token（HTTPS）
+- **v0.dev連携**: GitHubリポジトリ接続済み・PRフローで運用
 
 ---
 
@@ -134,15 +171,25 @@ therapist-app/
 | 2026-02-27 | プロジェクト方針・技術スタック決定 |
 | 2026-02-27 | GitHubリポジトリとローカルを接続 |
 | 2026-02-27 | モノレポ初期構成を作成・プッシュ |
+| 2026-02-27 | Viteプロジェクト初期化・PWA設定 |
+| 2026-02-27 | Tailwind CSS v4 + shadcn/ui導入 |
+| 2026-02-27 | React Routerでルーティング設定 |
+| 2026-02-27 | v0.devでログイン・新規登録画面をデザイン・PRマージ |
 
 ---
 
 ## 次のステップ
 
-- [ ] UIライブラリの選定（shadcn/ui + Tailwind CSS 推奨）
-- [ ] Viteプロジェクトの初期化
-- [ ] ルーティング設定（React Router）
-- [ ] 各画面のデザイン作成（他AIへ依頼）
+- [x] UIライブラリの選定（shadcn/ui + Tailwind CSS）
+- [x] Viteプロジェクトの初期化
+- [x] ルーティング設定（React Router）
+- [x] ログイン・新規登録画面のデザイン（v0.dev）
+- [ ] 共通レイアウト（下部ナビゲーションバー）
+- [ ] 顧客一覧画面
+- [ ] 顧客詳細・編集・来店登録画面
+- [ ] カレンダー画面
+- [ ] 収入・成績画面
+- [ ] 設定画面
 - [ ] Supabaseプロジェクト作成・DB設計
 - [ ] OpenAPI仕様書の詳細定義（FE/BE合意）
 - [ ] FastAPI認証実装
