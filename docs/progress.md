@@ -164,6 +164,20 @@ therapist-app/
 
 ---
 
+## バックエンドチーム向けドキュメント
+
+詳細は [`docs/backend-onboarding.md`](./backend-onboarding.md) を参照。
+
+| セクション | 内容 |
+|---|---|
+| 環境構築 | Python仮想環境・パッケージインストール・起動方法 |
+| Supabase | アカウント作成・接続情報の設定方法 |
+| DBテーブル設計 | customers・visits・incomesの初期設計 |
+| 最初の作業 | ヘルスチェック確認 → Supabase作成 → DB設計 → 認証API |
+| ブランチ運用 | feature/ブランチ → PR → マージの流れ |
+
+---
+
 ## 作業ログ
 
 | 日付 | 内容 |
@@ -175,11 +189,13 @@ therapist-app/
 | 2026-02-27 | Tailwind CSS v4 + shadcn/ui導入 |
 | 2026-02-27 | React Routerでルーティング設定 |
 | 2026-02-27 | v0.devでログイン・新規登録画面をデザイン・PRマージ |
+| 2026-02-27 | バックエンドチーム向け参加ガイドを作成・共有 |
 
 ---
 
 ## 次のステップ
 
+### フロントエンド
 - [x] UIライブラリの選定（shadcn/ui + Tailwind CSS）
 - [x] Viteプロジェクトの初期化
 - [x] ルーティング設定（React Router）
@@ -190,6 +206,15 @@ therapist-app/
 - [ ] カレンダー画面
 - [ ] 収入・成績画面
 - [ ] 設定画面
-- [ ] Supabaseプロジェクト作成・DB設計
+
+### バックエンド
+- [ ] 環境構築・Supabaseプロジェクト作成
+- [ ] DBテーブル設計・作成
+- [ ] 認証API実装（signup / login / logout / me）
+- [ ] 顧客管理API実装
+- [ ] 来店管理API実装
+- [ ] 収入管理API実装
+
+### FE・BE共通
 - [ ] OpenAPI仕様書の詳細定義（FE/BE合意）
-- [ ] FastAPI認証実装
+- [ ] FE・BE結合テスト
