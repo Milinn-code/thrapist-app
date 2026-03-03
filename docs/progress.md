@@ -166,15 +166,10 @@ therapist-app/
 
 ## バックエンドチーム向けドキュメント
 
-詳細は [`docs/backend-onboarding.md`](./backend-onboarding.md) を参照。
-
-| セクション | 内容 |
+| ドキュメント | 内容 |
 |---|---|
-| 環境構築 | Python仮想環境・パッケージインストール・起動方法 |
-| Supabase | アカウント作成・接続情報の設定方法 |
-| DBテーブル設計 | customers・visits・incomesの初期設計 |
-| 最初の作業 | ヘルスチェック確認 → Supabase作成 → DB設計 → 認証API |
-| ブランチ運用 | feature/ブランチ → PR → マージの流れ |
+| [`docs/backend-onboarding.md`](./backend-onboarding.md) | 環境構築・Supabase設定・ブランチ運用の共通ガイド |
+| [`docs/backend-roles.md`](./backend-roles.md) | AさんとBさんへの具体的な役割分担・エンドポイント一覧 |
 
 ---
 
