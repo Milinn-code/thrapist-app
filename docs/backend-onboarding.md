@@ -248,6 +248,12 @@ git push origin feature/auth-api
 
 ---
 
+## 役割分担
+
+AさんとBさんそれぞれの担当タスク・エンドポイント一覧は [`docs/backend-roles.md`](./backend-roles.md) を参照してください。
+
+---
+
 ## 質問・相談
 
 わからないことがあればフロントエンド担当に気軽に相談してください。
