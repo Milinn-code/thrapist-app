@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import { supabase } from '@/lib/supabase'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -108,6 +109,7 @@ function RegisterForm({
   showConfirmPassword,
   setShowConfirmPassword,
   onSubmit,
+  loading,
 }: {
   name: string
   setName: (v: string) => void
@@ -122,6 +124,7 @@ function RegisterForm({
   showConfirmPassword: boolean
   setShowConfirmPassword: (v: boolean) => void
   onSubmit: (e: React.FormEvent) => void
+  loading?: boolean
 }) {
   return (
     <form onSubmit={onSubmit} className="flex flex-col gap-5">
@@ -192,8 +195,8 @@ function RegisterForm({
         onToggle={() => setShowConfirmPassword(!showConfirmPassword)}
       />
 
-      <Button type="submit" size="lg" className="w-full h-11 text-base font-semibold mt-1">
-        登録する
+      <Button type="submit" size="lg" className="w-full h-11 text-base font-semibold mt-1" disabled={loading}>
+        {loading ? '登録中...' : '登録する'}
       </Button>
     </form>
   )
@@ -206,10 +209,29 @@ export default function RegisterPage() {
   const [confirmPassword, setConfirmPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
+  const navigate = useNavigate()
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // TODO: 新規登録処理
+    setError('')
+    if (password !== confirmPassword) {
+      setError('パスワードが一致しません')
+      return
+    }
+    setLoading(true)
+    const { error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: { data: { name } },
+    })
+    setLoading(false)
+    if (error) {
+      setError('登録に失敗しました。もう一度お試しください')
+    } else {
+      navigate('/login')
+    }
   }
 
   return (
@@ -238,6 +260,11 @@ export default function RegisterPage() {
           </CardHeader>
 
           <CardContent>
+            {error && (
+              <p className="mb-4 rounded-lg bg-destructive/10 px-4 py-2 text-sm text-destructive">
+                {error}
+              </p>
+            )}
             <RegisterForm
               name={name}
               setName={setName}
@@ -252,6 +279,7 @@ export default function RegisterPage() {
               showConfirmPassword={showConfirmPassword}
               setShowConfirmPassword={setShowConfirmPassword}
               onSubmit={handleSubmit}
+              loading={loading}
             />
           </CardContent>
         </Card>

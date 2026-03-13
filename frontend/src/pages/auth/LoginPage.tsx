@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import { supabase } from '@/lib/supabase'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -48,6 +49,7 @@ function LoginForm({
   showPassword,
   setShowPassword,
   onSubmit,
+  loading,
 }: {
   email: string
   setEmail: (v: string) => void
@@ -56,6 +58,7 @@ function LoginForm({
   showPassword: boolean
   setShowPassword: (v: boolean) => void
   onSubmit: (e: React.FormEvent) => void
+  loading?: boolean
 }) {
   return (
     <form onSubmit={onSubmit} className="flex flex-col gap-5">
@@ -121,8 +124,8 @@ function LoginForm({
         </div>
       </div>
 
-      <Button type="submit" size="lg" className="w-full h-11 text-base font-semibold mt-1">
-        ログイン
+      <Button type="submit" size="lg" className="w-full h-11 text-base font-semibold mt-1" disabled={loading}>
+        {loading ? 'ログイン中...' : 'ログイン'}
       </Button>
     </form>
   )
@@ -174,10 +177,21 @@ export default function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(false)
+  const navigate = useNavigate()
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    // TODO: 認証処理
+    setError('')
+    setLoading(true)
+    const { error } = await supabase.auth.signInWithPassword({ email, password })
+    setLoading(false)
+    if (error) {
+      setError('メールアドレスまたはパスワードが正しくありません')
+    } else {
+      navigate('/app')
+    }
   }
 
   return (
@@ -206,6 +220,11 @@ export default function LoginPage() {
           </CardHeader>
 
           <CardContent>
+            {error && (
+              <p className="mb-4 rounded-lg bg-destructive/10 px-4 py-2 text-sm text-destructive">
+                {error}
+              </p>
+            )}
             <LoginForm
               email={email}
               setEmail={setEmail}
@@ -214,6 +233,7 @@ export default function LoginPage() {
               showPassword={showPassword}
               setShowPassword={setShowPassword}
               onSubmit={handleSubmit}
+              loading={loading}
             />
           </CardContent>
 
