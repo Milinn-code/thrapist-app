@@ -63,6 +63,95 @@ Supabaseのダッシュボードで以下のテーブルを作成する。
 - `/auth/me` は Authorization ヘッダーのトークンを検証して返す
 - パスワードのハッシュ化はSupabase側が行うため自前実装不要
 
+---
+
+### Phase 3: 実装ガイド
+
+#### 作成するファイル一覧
+
+```
+backend/app/
+├── core/
+│   ├── config.py       # .env の環境変数を読み込む
+│   └── supabase.py     # Supabaseクライアントの初期化
+├── schemas/
+│   └── auth.py         # リクエスト・レスポンスの型定義
+├── routers/
+│   └── auth.py         # 認証エンドポイントの実装
+└── main.py             # ルーターの登録（既存ファイルに追記）
+```
+
+---
+
+#### Step 1: `app/core/config.py` を作成する
+
+`pydantic_settings` の `BaseSettings` を継承したクラスを作り、`.env` から `supabase_url` / `supabase_key` / `secret_key` の3つを読み込む。
+クラスの内部に `env_file = ".env"` を指定した `Config` クラスを定義すること。
+最後にインスタンスを `settings` という名前でモジュールレベルに作っておく。
+
+---
+
+#### Step 2: `app/core/supabase.py` を作成する
+
+`supabase` パッケージの `create_client` 関数を使って Supabase クライアントを初期化する。
+引数には Step 1 で作った `settings.supabase_url` と `settings.supabase_key` を渡す。
+作ったクライアントを `supabase` という名前でモジュールレベルに置いておく（他ファイルからインポートして使う）。
+
+---
+
+#### Step 3: `app/schemas/auth.py` を作成する
+
+`pydantic` の `BaseModel` を継承して以下の3つのクラスを定義する。
+
+| クラス名 | フィールド | 用途 |
+| --- | --- | --- |
+| `AuthRequest` | `email: EmailStr`, `password: str` | signup・login のリクエスト |
+| `TokenResponse` | `access_token: str`, `refresh_token: str` | login のレスポンス |
+| `UserResponse` | `id: str`, `email: str` | `/me` のレスポンス |
+
+`EmailStr` は `pydantic` からインポートする。
+
+---
+
+#### Step 4: `app/routers/auth.py` を作成する
+
+`APIRouter` のインスタンスを `router` という名前で作る。
+各エンドポイントで使う Supabase Auth のメソッドは以下の通り。
+
+| エンドポイント | 使うメソッド | 成功時に参照するプロパティ |
+| --- | --- | --- |
+| `POST /signup` | `supabase.auth.sign_up({"email": ..., "password": ...})` | `res.user` が `None` でなければ成功 |
+| `POST /login` | `supabase.auth.sign_in_with_password({"email": ..., "password": ...})` | `res.session.access_token` / `res.session.refresh_token` |
+| `POST /logout` | `supabase.auth.sign_out()` | なし |
+| `GET /me` | `supabase.auth.get_user(token)` | `res.user.id` / `res.user.email` |
+
+**`/logout` と `/me` でのトークン取り出し方**
+- 関数の引数に `authorization: str = Header(...)` を受け取る
+- `authorization.replace("Bearer ", "")` でトークン部分だけ取り出す
+
+失敗時は `HTTPException` を raise する（signup は `400`、認証エラーは `401`）。
+
+---
+
+#### Step 5: `app/main.py` にルーターを登録する
+
+`app.routers` から `auth` をインポートして、`app.include_router()` で登録する。
+`prefix="/auth"` を指定することで、`router` 内のパスが `/auth/signup` などになる。
+
+---
+
+#### 動作確認
+
+```bash
+uvicorn app.main:app --reload
+# → http://localhost:8000/docs を開く
+```
+
+1. `POST /auth/signup` でアカウント作成
+2. `POST /auth/login` でログイン → `access_token` が返ってくることを確認
+3. `GET /auth/me` の Authorize ボタンに `Bearer <access_token>` を貼り付けて実行
+4. ユーザー情報が返ってくればOK
+
 ### Phase 4: 顧客管理API実装
 
 ブランチ: `feature/customers-api`
