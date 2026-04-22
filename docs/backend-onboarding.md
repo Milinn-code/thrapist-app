@@ -2,10 +2,11 @@
 
 ---
 
-## はじめに
+## このドキュメントについて
 
-プロジェクトへの参加ありがとうございます。
-このドキュメントでは、開発に参加するための環境構築手順と、最初に取り組んでもらいたい作業をまとめています。
+**まずこのファイルを読んでください。** 環境構築の手順と、チーム共通のルールをまとめています。
+
+個人の担当タスクとAPIの実装手順は [`docs/backend-roles.md`](./backend-roles.md) を参照してください。
 
 ---
 
@@ -22,7 +23,8 @@
 | 役割 | 担当 |
 |---|---|
 | フロントエンド | React + TypeScript + Vite PWA |
-| バックエンド（担当） | Python + FastAPI |
+| バックエンド（MTK） | Supabaseセットアップ・認証API・顧客管理API |
+| バックエンド（Ryoga） | DBスキーマ作成・来店管理API・収入管理API |
 
 ---
 
@@ -46,7 +48,6 @@ cd therapist-app
 ### 1. 必要なもの
 
 - Python 3.11 以上
-- pip
 
 Pythonのバージョン確認:
 ```bash
@@ -101,26 +102,34 @@ uvicorn app.main:app --reload
 http://localhost:8000/docs
 ```
 
+起動確認: `http://localhost:8000/health` にアクセスして以下が返ってくればOKです。
+
+```json
+{ "status": "ok" }
+```
+
 ---
 
 ## Supabaseのセットアップ
 
-Supabase はデータベース（PostgreSQL）と認証を担うサービスです。
+SupabaseはデータベースとSupabase Auth（認証）を担うサービスです。MTK・Ryogaで共同で1つのプロジェクトを使います。
 
-### 1. アカウント作成・プロジェクト作成
+### 1. プロジェクト作成（MTKが実施・Ryogaは設定値を受け取る）
 
 1. https://supabase.com にアクセスしてアカウント作成
 2. 「New Project」をクリック
 3. プロジェクト名: `melty`、リージョン: `Northeast Asia (Tokyo)` を選択
 
-### 2. 接続情報の取得
+### 2. 接続情報の取得と共有
 
-プロジェクト作成後、**Project Settings → API** から以下をコピーして `.env` に設定:
+プロジェクト作成後、**Project Settings → API** から以下をコピーする。
 
 | 項目 | .envの変数名 |
 |---|---|
 | Project URL | `SUPABASE_URL` |
 | anon public key | `SUPABASE_KEY` |
+
+> **注意:** 接続情報は `.env.example` に書かず、**Bitwarden**（パスワードマネージャー）でチーム内共有してください。詳細は [`docs/security-incident-2026-03-23.md`](./security-incident-2026-03-23.md) を参照。
 
 ---
 
@@ -138,8 +147,6 @@ backend/
 └── .env.example
 ```
 
-### ファイルの追加ルール
-
 エンドポイントを追加するときは `routers/` にファイルを作成してください。
 
 例: 顧客管理APIなら `routers/customers.py` を作成し、`main.py` でインポートします。
@@ -155,86 +162,14 @@ FastAPIはコードからSwagger UIを自動生成するため、実装後は `h
 
 ---
 
-## 最初に取り組んでもらいたいこと
-
-以下の順番で進めてください。
-
-### Step 1: 環境構築の確認
-
-`http://localhost:8000/health` にアクセスして以下が返ってくればOKです:
-
-```json
-{ "status": "ok" }
-```
-
-### Step 2: Supabaseプロジェクトの作成
-
-上記の手順でSupabaseを作成し、接続を確認してください。
-
-### Step 3: DBテーブル設計
-
-以下のテーブルを設計・作成してください（Supabaseのダッシュボードで作成できます）。
-
-**users（ユーザー）**
-※ Supabase Authが自動管理するため、基本的に追加作業不要
-
-**customers（顧客）**
-
-| カラム名 | 型 | 説明 |
-|---|---|---|
-| id | uuid | 主キー |
-| user_id | uuid | ユーザーID（外部キー） |
-| name | text | 顧客名 |
-| group_color | text | グループカラー |
-| rank | text | ランク（A/B/C/D） |
-| birthday | date | 誕生日 |
-| memo | text | メモ |
-| created_at | timestamp | 作成日時 |
-
-**visits（来店記録）**
-
-| カラム名 | 型 | 説明 |
-|---|---|---|
-| id | uuid | 主キー |
-| customer_id | uuid | 顧客ID（外部キー） |
-| user_id | uuid | ユーザーID |
-| visited_at | timestamp | 来店日時 |
-| sales | integer | 売上（円） |
-| sets | numeric | セット数 |
-| is_shimei | boolean | 指名フラグ |
-| is_douhan | boolean | 同伴フラグ |
-| note | text | 接客メモ |
-
-**incomes（収入記録）**
-
-| カラム名 | 型 | 説明 |
-|---|---|---|
-| id | uuid | 主キー |
-| user_id | uuid | ユーザーID |
-| date | date | 日付 |
-| amount | integer | 金額（円） |
-| note | text | メモ |
-
-### Step 4: 認証APIの実装
-
-最初に実装するエンドポイントです。
-
-| メソッド | URL | 内容 |
-|---|---|---|
-| POST | `/auth/signup` | 新規登録 |
-| POST | `/auth/login` | ログイン |
-| POST | `/auth/logout` | ログアウト |
-| GET | `/auth/me` | 現在のユーザー情報取得 |
-
----
-
 ## ブランチ・PR運用
 
-| 作業内容 | ブランチ名の例 |
+| 作業内容 | ブランチ名 |
 |---|---|
 | 認証API | `feature/auth-api` |
 | 顧客管理API | `feature/customers-api` |
 | 来店管理API | `feature/visits-api` |
+| 収入管理API | `feature/income-api` |
 
 ```bash
 # ブランチを作成して作業
@@ -246,11 +181,14 @@ git push origin feature/auth-api
 # GitHubでPRを作成してレビュー後にマージ
 ```
 
----
-
-## 役割分担
-
-AさんとBさんそれぞれの担当タスク・エンドポイント一覧は [`docs/backend-roles.md`](./backend-roles.md) を参照してください。
+作業フロー:
+```
+1. main から feature/xxx ブランチを切る
+2. 実装・ローカルで動作確認
+3. GitHub に push して PR を作成
+4. フロントエンド担当にレビュー依頼
+5. 承認後にマージ
+```
 
 ---
 
